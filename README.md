@@ -6,3 +6,7 @@
 
 ## gpuServer.py
 gpu server 코드
+
+
+
+### aws lambda + api gateway 활용
