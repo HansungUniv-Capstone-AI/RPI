@@ -9,6 +9,7 @@ import time
 import logging
 
 test = True
+# 서버 url
 getUrl = 'https://lbvvzx89g3.execute-api.ap-northeast-2.amazonaws.com/prod'
 patchUrl = 'https://lbvvzx89g3.execute-api.ap-northeast-2.amazonaws.com/prod'
 
