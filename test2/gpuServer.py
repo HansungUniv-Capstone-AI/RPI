@@ -28,6 +28,8 @@ print('Socket bind complete')
 # 클라이언트의 접속을 기다린다. (클라이언트 연결을 10개까지 받는다) : 클라이언트가 bind된 port로 연결할 때까지 기다리는 blocking 함수
 s.listen(10)
 print('Socket now listening')
+print(cv2.__version__)
+
 
 # 연결, conn에는 소켓 객체, addr은 소켓에 바인드 된 주소
 conn, addr = s.accept()
