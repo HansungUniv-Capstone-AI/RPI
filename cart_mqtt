@@ -1,0 +1,97 @@
+import paho.mqtt.client as paho
+import os
+import socket
+import ssl
+from gpiozero import Motor
+import time
+import threading
+import RPi.GPIO as GPIO
+
+#motor setting
+leftMotor = Motor(12,16)
+rightMotor = Motor(20,21)
+
+global topic_stack
+global data_stack
+
+def cart_move(topic,bytes):
+        #topic_stack = []
+        #topic_stack.append(topic)
+        #time.sleep(0.5)
+        poppedTopic = topic #topic_stack.pop()
+        if poppedTopic in "direction":
+                direction = bytes.decode('utf-8')
+                if direction == "left": # left
+                        print("direction: " +direction)
+             leftMotor.backward(speed=1.0)
+                        rightMotor.forward(speed=1.0)
+                        time.sleep(0.3)
+                elif direction == "right": # right
+                        print("direction: " +direction)
+                        rightMotor.backward(speed=1.0)
+                        leftMotor.forward(speed=1.0)
+                        time.sleep(0.3)
+     elif direction == "center"  :
+                        print("direction: " +direction)
+                        leftMotor.backward(speed=1.0)
+                        rightMotor.backward(speed=1.0)
+                        time.sleep(0.2)
+                #elif direction == "DOWN" :
+                else :
+                        #leftMotor.backward(speed=0.9)
+                        #rightMotor.backward(speed=1.0)
+                        leftMotor.stop()
+                        rightMotor.stop()
+                        time.sleep(1.0)
+
+       if poppedTopic in "speed":
+                speed = bytes.decode('utf-8')
+                if speed =='UP':
+                        print("speed: "+speed)
+                        #dc_motor.forward(speed=0.8)
+                        #time.sleep(0.3)
+                elif speed =='DOWN':
+                        print("speed: "+speed)
+                        rightMotor.stop()
+                        leftMotor.stop()
+                        time.sleep(1.0)
+
+def on_connect(client, userdata, flags, rc):
+    print("Connection returned result: " + str(rc) )
+    # Subscribing in on_connect() means that if we lose the connection and
+    # reconnect then subscriptions will be renewed.
+    client.subscribe("#" , 1 )
+
+def on_message(client, userdata, msg):
+        topic = msg.topic
+        bytes = msg.payload
+        #decodeData = bytes.decode('utf-8')
+        th1 = threading.Thread(target=cart_move,
+                               #name="thread 1 :",
+                               args=(topic,bytes))
+        th1.start()  # sub thread 1 start()
+        #th1.join() # waiting action of sub-thread
+
+
+#def on_log(client, userdata, level, msg):
+#    print(msg.topic+" "+str(msg.payload))
+
+mqttc = paho.Client()
+mqttc.on_connect = on_connect
+mqttc.on_message = on_message
+
+
+awshost = "a16pm57w4yddt8-ats.iot.ap-northeast-2.amazonaws.com"
+awsport = 8883
+clientId = "cartThing"
+thingName = "cartThing"
+# aws iot의
+caPath = "/home/pi/AmazonRootCA1 (1).pem"  # Root certificate authority, comes $
+certPath = "/home/pi/431eb5aec2e3ab14fcd65145451ccd508c03b2c79b83f03bb03b9245e7$
+keyPath = "/home/pi/431eb5aec2e3ab14fcd65145451ccd508c03b2c79b83f03bb03b9245e74$
+
+mqttc.tls_set(caPath, certfile=certPath, keyfile=keyPath, cert_reqs=ssl.CERT_RE$
+
+mqttc.connect(awshost, awsport, keepalive=60)
+
+mqttc.loop_forever()
